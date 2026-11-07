@@ -6,7 +6,6 @@ from src.application.casos_uso import (
     CancelarPedido,
     ConsultarAuditoria,
     ConsultarCancelaciones,
-    ConsultarClientes,
     ConsultarDisponibilidad,
     ConsultarPedido,
     EntregarPedido,
@@ -38,7 +37,6 @@ class Aplicacion:
     evaluar_pedido: object
     consultar_disponibilidad: object
     consultar_cancelaciones: object
-    consultar_clientes: object
     consultar_auditoria: object
     reporte: object
 
@@ -61,7 +59,6 @@ def construir_aplicacion(uow_factory, generador_id=generar_id_pedido):
         evaluar_pedido=EvaluarPedido(uow_factory),
         consultar_disponibilidad=ConsultarDisponibilidad(uow_factory),
         consultar_cancelaciones=ConsultarCancelaciones(uow_factory),
-        consultar_clientes=ConsultarClientes(uow_factory),
         consultar_auditoria=ConsultarAuditoria(uow_factory),
         reporte=ReporteResumen(uow_factory),
     )

@@ -195,14 +195,6 @@ class ConsultarDisponibilidad(_Consulta):
         return [platillo_a_dict(p) for p in platillos]
 
 
-class ConsultarClientes(_Consulta):
-    def ejecutar(self):
-        with self._uow_factory() as uow:
-            return [{"id": a.id, "nombre": a.nombre, "es_preferente": bool(a.es_preferente),
-                     "activo": bool(a.activo), "ciudad": a.ciudad}
-                    for a in uow.actores.listar()]
-
-
 class ConsultarCancelaciones(_Consulta):
     def ejecutar(self):
         with self._uow_factory() as uow:
