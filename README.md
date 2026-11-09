@@ -66,6 +66,22 @@ set SEED_ON_START=true                              # Linux/Mac: export SEED_ON_
 uvicorn src.api.main:crear_app --factory --reload
 ```
 
+## Interfaz web para el personal del restaurante
+
+Al abrir http://localhost:8000 aparece un panel pensado para personas sin conocimientos técnicos
+(`src/web/`, HTML + CSS + JavaScript sin dependencias ni compilación). Todo se muestra en lenguaje
+cotidiano: nombres en lugar de claves, fechas y pesos legibles, y mensajes de error explicados.
+
+| Sección | Qué permite hacer |
+|---|---|
+| Inicio | Resumen en texto de ventas, pedidos por etapa y productos que requieren atención |
+| Nuevo pedido | Elegir cliente, agregar productos al carrito, indicaciones y confirmar |
+| Pedidos | Buscar, filtrar por estado, avanzar al siguiente paso, ver detalle y cancelar |
+| Inventario | Ver existencias, registrar llegada de mercancía y dar de baja productos (merma) |
+| Historial | Bitácora de lo ocurrido (quién, qué y cuándo) y consulta de cancelaciones |
+
+El selector «Estás trabajando como» define el rol; solo Encargado y Gerente pueden cancelar pedidos.
+
 ## Pruebas, calidad y evidencias
 
 ```bash
@@ -83,6 +99,7 @@ python scripts/exportar_openapi.py   # especificación -> docs/api/openapi.json
 | `GET /pedidos`, `GET /pedidos/{id}` | US-01, US-07 |
 | `POST /pedidos/{id}/preparacion`, `/listo`, `/entrega` | US-06, US-12 |
 | `POST /pedidos/{id}/cancelacion` (Encargado o Gerente) | US-10 |
+| `GET /clientes` | Apoyo de la interfaz web |
 | `GET /platillos`, `POST /inventario/ajustes` | US-02, US-03, US-04, US-05 |
 | `GET /cancelaciones`, `GET /auditoria` | US-11, US-13 |
 | `GET /reportes/resumen` | US-14, US-15 |

@@ -142,3 +142,19 @@ def test_un_error_inesperado_no_expone_detalles_tecnicos():
     assert respuesta.status_code == 500
     assert respuesta.json()["detail"] == "No pudimos procesar tu solicitud. Inténtalo de nuevo más tarde."
     assert "secreto" not in respuesta.text
+
+
+def test_listar_clientes_para_la_interfaz(cliente):
+    clientes = cliente.get("/clientes").json()
+    assert len(clientes) == 40
+    assert set(clientes[0]) == {"id", "nombre", "es_preferente", "activo", "ciudad"}
+    assert any(not c["activo"] for c in clientes)
+
+
+def test_interfaz_web_se_sirve_en_la_raiz(cliente):
+    raiz = cliente.get("/")
+    assert raiz.status_code == 200
+    assert "text/html" in raiz.headers["content-type"]
+    assert "Sazón Urbano" in raiz.text
+    assert cliente.get("/interfaz/app.js").status_code == 200
+    assert cliente.get("/interfaz/estilos.css").status_code == 200

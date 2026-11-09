@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Request
 from src.api.esquemas import (
     AjusteIn,
     CancelarIn,
+    ClienteOut,
     ErrorOut,
     Libre,
     PedidoIn,
@@ -31,6 +32,12 @@ def servicios(request: Request):
 @router.get("/salud", tags=["Sistema"], summary="Estado del servicio")
 def salud():
     return {"estado": "ok"}
+
+
+@router.get("/clientes", response_model=list[ClienteOut], tags=["Pedidos"],
+            summary="Listar clientes para elegir quién hace el pedido")
+def listar_clientes(casos=Depends(servicios)):
+    return casos.consultar_clientes.ejecutar()
 
 
 @router.post("/pedidos", status_code=201, response_model=PedidoOut, tags=["Pedidos"],

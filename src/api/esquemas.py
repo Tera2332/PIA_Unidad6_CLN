@@ -64,6 +64,14 @@ class PlatilloOut(BaseModel):
     stock_critico: bool
 
 
+class ClienteOut(BaseModel):
+    id: str
+    nombre: str
+    es_preferente: bool
+    activo: bool
+    ciudad: str
+
+
 class RegistroOut(BaseModel):
     pedido_id: str | None = None
     accion: str

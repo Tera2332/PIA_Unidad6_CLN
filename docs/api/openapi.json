@@ -1,0 +1,1393 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Sazón Urbano – API de pedidos",
+    "description": "API REST de **Sazón Urbano**: registro de pedidos, máquina de estados, control de inventario, cancelaciones autorizadas y trazabilidad. Los errores se devuelven siempre como texto claro en el campo `detail`.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/salud": {
+      "get": {
+        "tags": [
+          "Sistema"
+        ],
+        "summary": "Estado del servicio",
+        "operationId": "salud_salud_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clientes": {
+      "get": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Listar clientes para elegir quién hace el pedido",
+        "operationId": "listar_clientes_clientes_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ClienteOut"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Clientes Clientes Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pedidos": {
+      "post": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Registrar un pedido (US-08, US-09)",
+        "operationId": "registrar_pedido_pedidos_post",
+        "parameters": [
+          {
+            "name": "usuario",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "mesero",
+              "title": "Usuario"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PedidoIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe el recurso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La regla de negocio no se cumple",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Listar pedidos, opcionalmente por estado (US-01)",
+        "operationId": "listar_pedidos_pedidos_get",
+        "parameters": [
+          {
+            "name": "estado",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Estado"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PedidoOut"
+                  },
+                  "title": "Response Listar Pedidos Pedidos Get"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe el recurso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La regla de negocio no se cumple",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pedidos/{pedido_id}": {
+      "get": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Consultar un pedido y su estado (US-07)",
+        "operationId": "consultar_pedido_pedidos__pedido_id__get",
+        "parameters": [
+          {
+            "name": "pedido_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pedido Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe el recurso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La regla de negocio no se cumple",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pedidos/{pedido_id}/evaluacion": {
+      "get": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Evaluar las Specifications del pedido",
+        "operationId": "evaluar_pedido_pedidos__pedido_id__evaluacion_get",
+        "parameters": [
+          {
+            "name": "pedido_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pedido Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Evaluar Pedido Pedidos  Pedido Id  Evaluacion Get"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe el recurso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La regla de negocio no se cumple",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pedidos/{pedido_id}/preparacion": {
+      "post": {
+        "tags": [
+          "Estados"
+        ],
+        "summary": "Pasar a «En preparación» (US-06)",
+        "operationId": "iniciar_preparacion_pedidos__pedido_id__preparacion_post",
+        "parameters": [
+          {
+            "name": "pedido_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pedido Id"
+            }
+          },
+          {
+            "name": "usuario",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "cocina",
+              "title": "Usuario"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe el recurso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La regla de negocio no se cumple",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pedidos/{pedido_id}/listo": {
+      "post": {
+        "tags": [
+          "Estados"
+        ],
+        "summary": "Pasar a «Listo» (US-06)",
+        "operationId": "marcar_listo_pedidos__pedido_id__listo_post",
+        "parameters": [
+          {
+            "name": "pedido_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pedido Id"
+            }
+          },
+          {
+            "name": "usuario",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "cocina",
+              "title": "Usuario"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe el recurso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La regla de negocio no se cumple",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pedidos/{pedido_id}/entrega": {
+      "post": {
+        "tags": [
+          "Estados"
+        ],
+        "summary": "Registrar la entrega y descontar inventario (US-12)",
+        "operationId": "entregar_pedido_pedidos__pedido_id__entrega_post",
+        "parameters": [
+          {
+            "name": "pedido_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pedido Id"
+            }
+          },
+          {
+            "name": "usuario",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "repartidor",
+              "title": "Usuario"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe el recurso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La regla de negocio no se cumple",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pedidos/{pedido_id}/cancelacion": {
+      "post": {
+        "tags": [
+          "Estados"
+        ],
+        "summary": "Cancelar un pedido (US-10)",
+        "operationId": "cancelar_pedido_pedidos__pedido_id__cancelacion_post",
+        "parameters": [
+          {
+            "name": "pedido_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pedido Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelarIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe el recurso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La regla de negocio no se cumple",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/platillos": {
+      "get": {
+        "tags": [
+          "Inventario"
+        ],
+        "summary": "Consultar disponibilidad de platillos (US-02)",
+        "operationId": "consultar_disponibilidad_platillos_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlatilloOut"
+                  },
+                  "title": "Response Consultar Disponibilidad Platillos Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventario/ajustes": {
+      "post": {
+        "tags": [
+          "Inventario"
+        ],
+        "summary": "Registrar una entrada o una merma (US-03)",
+        "operationId": "ajustar_inventario_inventario_ajustes_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AjusteIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatilloOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe el recurso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La regla de negocio no se cumple",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cancelaciones": {
+      "get": {
+        "tags": [
+          "Trazabilidad"
+        ],
+        "summary": "Consultar cancelaciones (US-11)",
+        "operationId": "consultar_cancelaciones_cancelaciones_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RegistroOut"
+                  },
+                  "type": "array",
+                  "title": "Response Consultar Cancelaciones Cancelaciones Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auditoria": {
+      "get": {
+        "tags": [
+          "Trazabilidad"
+        ],
+        "summary": "Historial de acciones, opcionalmente por pedido (US-13)",
+        "operationId": "consultar_auditoria_auditoria_get",
+        "parameters": [
+          {
+            "name": "pedido_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Pedido Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RegistroOut"
+                  },
+                  "title": "Response Consultar Auditoria Auditoria Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reportes/resumen": {
+      "get": {
+        "tags": [
+          "Reportes"
+        ],
+        "summary": "Ventas contra inventario (US-14, US-15)",
+        "operationId": "reporte_resumen_reportes_resumen_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Reporte Resumen Reportes Resumen Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AjusteIn": {
+        "properties": {
+          "platillo_id": {
+            "type": "string",
+            "title": "Platillo Id",
+            "examples": [
+              "PED-P001"
+            ]
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "entrada",
+              "merma"
+            ],
+            "title": "Tipo"
+          },
+          "cantidad": {
+            "type": "integer",
+            "title": "Cantidad",
+            "examples": [
+              5
+            ]
+          },
+          "motivo": {
+            "type": "string",
+            "title": "Motivo",
+            "description": "Obligatorio cuando el tipo es merma",
+            "default": ""
+          },
+          "usuario": {
+            "type": "string",
+            "title": "Usuario",
+            "default": "encargado"
+          }
+        },
+        "type": "object",
+        "required": [
+          "platillo_id",
+          "tipo",
+          "cantidad"
+        ],
+        "title": "AjusteIn"
+      },
+      "CancelarIn": {
+        "properties": {
+          "motivo": {
+            "type": "string",
+            "title": "Motivo",
+            "examples": [
+              "El cliente ya no quiso esperar"
+            ]
+          },
+          "usuario": {
+            "type": "string",
+            "title": "Usuario",
+            "examples": [
+              "encargado1"
+            ]
+          },
+          "rol": {
+            "type": "string",
+            "title": "Rol",
+            "description": "Solo Encargado o Gerente pueden cancelar",
+            "examples": [
+              "Encargado"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "motivo",
+          "usuario",
+          "rol"
+        ],
+        "title": "CancelarIn"
+      },
+      "ClienteOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "es_preferente": {
+            "type": "boolean",
+            "title": "Es Preferente"
+          },
+          "activo": {
+            "type": "boolean",
+            "title": "Activo"
+          },
+          "ciudad": {
+            "type": "string",
+            "title": "Ciudad"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "es_preferente",
+          "activo",
+          "ciudad"
+        ],
+        "title": "ClienteOut"
+      },
+      "ErrorOut": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "codigo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Codigo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "title": "ErrorOut"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LineaIn": {
+        "properties": {
+          "platillo_id": {
+            "type": "string",
+            "title": "Platillo Id",
+            "description": "Identificador del platillo",
+            "examples": [
+              "PED-P001"
+            ]
+          },
+          "cantidad": {
+            "type": "integer",
+            "title": "Cantidad",
+            "description": "Unidades solicitadas (entero mayor a cero)",
+            "examples": [
+              2
+            ]
+          },
+          "modificaciones": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Modificaciones",
+            "examples": [
+              [
+                "sin cebolla"
+              ]
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "platillo_id",
+          "cantidad"
+        ],
+        "title": "LineaIn"
+      },
+      "LineaOut": {
+        "properties": {
+          "platillo_id": {
+            "type": "string",
+            "title": "Platillo Id"
+          },
+          "cantidad": {
+            "type": "integer",
+            "title": "Cantidad"
+          },
+          "precio_unitario": {
+            "type": "string",
+            "title": "Precio Unitario"
+          },
+          "subtotal": {
+            "type": "string",
+            "title": "Subtotal"
+          },
+          "modificaciones": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Modificaciones"
+          }
+        },
+        "type": "object",
+        "required": [
+          "platillo_id",
+          "cantidad",
+          "precio_unitario",
+          "subtotal",
+          "modificaciones"
+        ],
+        "title": "LineaOut"
+      },
+      "PedidoIn": {
+        "properties": {
+          "actor_id": {
+            "type": "string",
+            "title": "Actor Id",
+            "description": "Cliente que hace el pedido",
+            "examples": [
+              "PED-C001"
+            ]
+          },
+          "lineas": {
+            "items": {
+              "$ref": "#/components/schemas/LineaIn"
+            },
+            "type": "array",
+            "title": "Lineas"
+          },
+          "promocion_activa": {
+            "type": "boolean",
+            "title": "Promocion Activa",
+            "default": false
+          },
+          "autorizado": {
+            "type": "boolean",
+            "title": "Autorizado",
+            "default": true
+          },
+          "referencia": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Referencia"
+          }
+        },
+        "type": "object",
+        "required": [
+          "actor_id",
+          "lineas"
+        ],
+        "title": "PedidoIn"
+      },
+      "PedidoOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "actor_id": {
+            "type": "string",
+            "title": "Actor Id"
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado"
+          },
+          "total": {
+            "type": "string",
+            "title": "Total"
+          },
+          "moneda": {
+            "type": "string",
+            "title": "Moneda"
+          },
+          "fecha_solicitud": {
+            "type": "string",
+            "title": "Fecha Solicitud"
+          },
+          "promocion_activa": {
+            "type": "boolean",
+            "title": "Promocion Activa"
+          },
+          "autorizado": {
+            "type": "boolean",
+            "title": "Autorizado"
+          },
+          "referencia": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Referencia"
+          },
+          "motivo_cancelacion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivo Cancelacion"
+          },
+          "lineas": {
+            "items": {
+              "$ref": "#/components/schemas/LineaOut"
+            },
+            "type": "array",
+            "title": "Lineas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "actor_id",
+          "estado",
+          "total",
+          "moneda",
+          "fecha_solicitud",
+          "promocion_activa",
+          "autorizado",
+          "lineas"
+        ],
+        "title": "PedidoOut"
+      },
+      "PlatilloOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          },
+          "precio": {
+            "type": "string",
+            "title": "Precio"
+          },
+          "stock": {
+            "type": "integer",
+            "title": "Stock"
+          },
+          "habilitado": {
+            "type": "boolean",
+            "title": "Habilitado"
+          },
+          "disponible": {
+            "type": "boolean",
+            "title": "Disponible"
+          },
+          "stock_critico": {
+            "type": "boolean",
+            "title": "Stock Critico"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "descripcion",
+          "precio",
+          "stock",
+          "habilitado",
+          "disponible",
+          "stock_critico"
+        ],
+        "title": "PlatilloOut"
+      },
+      "RegistroOut": {
+        "properties": {
+          "pedido_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pedido Id"
+          },
+          "accion": {
+            "type": "string",
+            "title": "Accion"
+          },
+          "usuario": {
+            "type": "string",
+            "title": "Usuario"
+          },
+          "rol": {
+            "type": "string",
+            "title": "Rol"
+          },
+          "detalle": {
+            "type": "string",
+            "title": "Detalle"
+          },
+          "fecha": {
+            "type": "string",
+            "title": "Fecha"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accion",
+          "usuario",
+          "rol",
+          "detalle",
+          "fecha"
+        ],
+        "title": "RegistroOut"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
